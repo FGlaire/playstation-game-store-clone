@@ -1,4 +1,5 @@
 # PlayStation Games Store Clone
+sample account: admin: johnbuyer69@gmail.com/buyer123
 
 A modern, responsive PlayStation games store clone built with Next.js 14, Supabase, and Tailwind CSS. This project is for educational purposes only.
 
