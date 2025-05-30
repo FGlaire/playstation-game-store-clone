@@ -42,6 +42,14 @@ const marqueeStyles = `
 
   .marquee span {
     display: inline-block;
+    font-family: var(--font-geist-sans);
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.95), rgba(255,255,255,0.75));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 40px rgba(255,255,255,0.15);
   }
 
   @keyframes marquee {
@@ -103,17 +111,17 @@ export default function Home() {
             <style>{marqueeStyles}</style>
             <div className="marquee-wrapper">
               <div className="marquee">
-                <span className="text-[15vw] font-medium tracking-wide text-white/85 mr-[10vw]">
-                  PLAYSTATION@2025
+                <span className="text-[15vw] mr-[10vw]">
+                  PLAYSTATION 2025
                 </span>
-                <span className="text-[15vw] font-medium tracking-wide text-white/85 mr-[10vw]">
-                  PLAYSTATION@2025
+                <span className="text-[15vw] mr-[10vw]">
+                  PLAYSTATION 2025
                 </span>
-                <span className="text-[15vw] font-medium tracking-wide text-white/85 mr-[10vw]">
-                  PLAYSTATION@2025
+                <span className="text-[15vw] mr-[10vw]">
+                  PLAYSTATION 2025
                 </span>
-                <span className="text-[15vw] font-medium tracking-wide text-white/85 mr-[10vw]">
-                  PLAYSTATION@2025
+                <span className="text-[15vw] mr-[10vw]">
+                  PLAYSTATION 2025
                 </span>
               </div>
             </div>
