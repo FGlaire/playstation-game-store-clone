@@ -12,7 +12,6 @@ export function LoadingScreen() {
   const pathname = usePathname()
 
   useEffect(() => {
-    // Prevent scrolling during loading
     if (isInitialLoad || isTransitioning) {
       document.body.style.overflow = 'hidden'
     } else {
@@ -81,6 +80,14 @@ export function LoadingScreen() {
     }
     setLastPathname(pathname)
   }, [pathname, lastPathname, hasLoaded])
+
+  useEffect(() => {
+    if (isTransitioning) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+  }, [isTransitioning])
 
   return (
     <AnimatePresence mode="wait">

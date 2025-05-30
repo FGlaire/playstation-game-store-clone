@@ -5,7 +5,6 @@ import gsap from 'gsap'
 import ScrollTrigger from 'gsap/ScrollTrigger'
 import { ScrollPanel } from './ScrollPanel'
 import { useAuth } from '@/components/providers/AuthProvider'
-import { useLenis } from '@/components/providers/SmoothScrollProvider'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -18,7 +17,6 @@ export function ScrollColumns({ images }: ScrollColumnsProps) {
   const columnWrapsRef = useRef<HTMLDivElement[]>([])
   const sectionRef = useRef<HTMLElement>(null)
   const { isLoading } = useAuth()
-  const { lenis } = useLenis()
 
   useEffect(() => {
     // Wait for auth loading to complete before initializing scroll

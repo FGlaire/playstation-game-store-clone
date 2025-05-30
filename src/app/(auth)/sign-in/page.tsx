@@ -16,7 +16,6 @@ import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { motion } from "framer-motion"
 
 const formSchema = z.object({
   email: z.string().email({
