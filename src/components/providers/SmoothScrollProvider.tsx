@@ -15,7 +15,7 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
   useEffect(() => {
     // Initialize Lenis with optimized settings
     lenisRef.current = new Lenis({
-      duration: 1,
+      duration: 1.2,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
@@ -32,6 +32,10 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
     }
 
     requestAnimationFrame(raf)
+
+    // Scroll to top on route change
+    window.scrollTo(0, 0)
+    lenisRef.current?.scrollTo(0, { immediate: true })
 
     return () => {
       lenisRef.current?.destroy()
