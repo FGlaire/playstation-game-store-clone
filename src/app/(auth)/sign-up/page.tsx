@@ -42,7 +42,8 @@ export default function SignUpPage() {
     },
   })
 
-  function onSubmit(_values: z.infer<typeof formSchema>) {
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log('Creating account for:', values.email)
     toast.success("Account created successfully!")
     router.push("/")
   }
