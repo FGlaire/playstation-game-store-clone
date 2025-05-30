@@ -56,6 +56,9 @@ module.exports = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      outline: {
+        ring: "2px solid var(--ring)",
+      },
     },
   },
   plugins: [],
