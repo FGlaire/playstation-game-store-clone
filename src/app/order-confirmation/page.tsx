@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -7,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { CheckCircle } from 'lucide-react'
 
-export default function OrderConfirmation() {
+function OrderConfirmationContent() {
   const searchParams = useSearchParams()
   const orderId = searchParams.get('orderId')
   const total = searchParams.get('total')
@@ -46,5 +47,13 @@ export default function OrderConfirmation() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function OrderConfirmation() {
+  return (
+    <Suspense fallback={<div className="container mx-auto py-20 sm:py-24 px-4">Loading...</div>}>
+      <OrderConfirmationContent />
+    </Suspense>
   )
 } 
