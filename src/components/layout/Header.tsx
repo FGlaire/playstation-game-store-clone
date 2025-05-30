@@ -8,7 +8,7 @@ import { CartButton } from '@/components/buyer/CartButton'
 import { useEffect, useState } from 'react'
 
 export function Header() {
-  const { user, isAdmin, signOut } = useAuth()
+  const { user, isAdmin, signOut, isLoading } = useAuth()
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
 
@@ -63,9 +63,13 @@ export function Header() {
           <CartButton />
           {user ? (
             <>
-              {isAdmin && (
+              {!isLoading && isAdmin && (
                 <Link href="/admin" className="hidden sm:inline-block">
-                  <Button variant="ghost" className="text-white hover:text-white hover:bg-white/10">
+                  <Button 
+                    variant="ghost" 
+                    className="text-white hover:text-white hover:bg-white/10"
+                    disabled={isLoading}
+                  >
                     Admin
                   </Button>
                 </Link>

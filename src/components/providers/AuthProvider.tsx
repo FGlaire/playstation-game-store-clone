@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useRef } from 'react'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { getUserRole } from '@/lib/supabase'
@@ -25,15 +25,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const { clearCart } = useCart()
+  const mountedRef = useRef(true)
 
   async function checkAdminRole(userId: string) {
     try {
       console.log('=== Starting admin role check ===')
       console.log('Checking admin role for user:', userId)
       
+      setIsLoading(true)
       // Get the user's role
       const role = await getUserRole(userId)
       console.log('Retrieved role from database:', role)
+
+      if (!mountedRef.current) return
 
       console.log('Final user role:', role)
       console.log('Setting isAdmin to:', role === 'admin')
@@ -43,16 +47,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Error in checkAdminRole:', err)
       setIsAdmin(false)
     } finally {
-      setIsLoading(false)
+      if (mountedRef.current) {
+        setIsLoading(false)
+      }
     }
   }
 
   useEffect(() => {
-    let mounted = true
+    mountedRef.current = true
 
     async function initializeAuth() {
       try {
         console.log('=== Starting auth initialization ===')
+        setIsLoading(true)
         // Get initial session
         const { data: { session } } = await supabase.auth.getSession()
         console.log('Initial session:', session?.user ? {
@@ -61,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           aud: session.user.aud
         } : 'No user')
         
-        if (mounted) {
+        if (mountedRef.current) {
           setUser(session?.user ?? null)
           if (session?.user) {
             await checkAdminRole(session.user.id)
@@ -80,8 +87,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             aud: session.user.aud
           } : 'No user')
           
-          if (!mounted) return
+          if (!mountedRef.current) return
 
+          setIsLoading(true)
           setUser(session?.user ?? null)
           if (session?.user) {
             await checkAdminRole(session.user.id)
@@ -96,7 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } catch (err) {
         console.error('Error initializing auth:', err)
-        if (mounted) {
+        if (mountedRef.current) {
           setIsLoading(false)
         }
       }
@@ -105,7 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initializeAuth()
 
     return () => {
-      mounted = false
+      mountedRef.current = false
     }
   }, [])
 
