@@ -28,21 +28,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const mountedRef = useRef(true)
   const adminCheckTimeoutRef = useRef<NodeJS.Timeout>()
   const initializationRef = useRef(false)
+  const lastKnownRoleRef = useRef<string | null>(null)
 
   async function checkAdminRole(userId: string) {
     try {
       console.log('=== Starting admin role check ===')
       console.log('Checking admin role for user:', userId)
       
-      // Get the user's role
+      // First check if we have a cached role
+      if (lastKnownRoleRef.current) {
+        console.log('Using cached role:', lastKnownRoleRef.current)
+        setIsAdmin(lastKnownRoleRef.current === 'admin')
+      }
+
+      // Get the user's role from database
       const role = await getUserRole(userId)
       console.log('Retrieved role from database:', role)
 
       if (!mountedRef.current) return
 
+      // Update cache and state
+      lastKnownRoleRef.current = role
       console.log('Final user role:', role)
       console.log('Setting isAdmin to:', role === 'admin')
       setIsAdmin(role === 'admin')
+      
+      // Store role in localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`user_role_${userId}`, role)
+      }
+      
       console.log('=== Completed admin role check ===')
     } catch (err) {
       console.error('Error in checkAdminRole:', err)
@@ -63,6 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         console.log('=== Starting auth initialization ===')
         setIsLoading(true)
+        
         // Get initial session
         const { data: { session } } = await supabase.auth.getSession()
         console.log('Initial session:', session?.user ? {
@@ -74,6 +90,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (mountedRef.current) {
           setUser(session?.user ?? null)
           if (session?.user) {
+            // Try to get cached role from localStorage
+            const cachedRole = typeof window !== 'undefined' ? 
+              localStorage.getItem(`user_role_${session.user.id}`) : null
+            
+            if (cachedRole) {
+              console.log('Using cached role from storage:', cachedRole)
+              lastKnownRoleRef.current = cachedRole
+              setIsAdmin(cachedRole === 'admin')
+            }
+            
             await checkAdminRole(session.user.id)
           }
           setIsLoading(false)
@@ -93,10 +119,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           if (session?.user) {
             setUser(session.user)
+            // Try to get cached role
+            const cachedRole = typeof window !== 'undefined' ? 
+              localStorage.getItem(`user_role_${session.user.id}`) : null
+            
+            if (cachedRole) {
+              console.log('Using cached role from storage:', cachedRole)
+              lastKnownRoleRef.current = cachedRole
+              setIsAdmin(cachedRole === 'admin')
+            }
+            
             await checkAdminRole(session.user.id)
           } else {
             setUser(null)
             setIsAdmin(false)
+            lastKnownRoleRef.current = null
+            // Clear cached role
+            if (typeof window !== 'undefined') {
+              localStorage.removeItem(`user_role_${session?.user?.id}`)
+            }
           }
           setIsLoading(false)
         })
@@ -128,6 +169,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (adminCheckTimeoutRef.current) {
       clearTimeout(adminCheckTimeoutRef.current)
     }
+    // Clear cached role
+    if (typeof window !== 'undefined' && user) {
+      localStorage.removeItem(`user_role_${user.id}`)
+    }
+    lastKnownRoleRef.current = null
     await supabase.auth.signOut()
     clearCart()
     setUser(null)
