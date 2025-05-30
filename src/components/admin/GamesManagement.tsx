@@ -26,7 +26,6 @@ export function GamesManagement() {
   const [games, setGames] = useState<Game[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedGame, setSelectedGame] = useState<Game | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     loadGames()
@@ -40,7 +39,7 @@ export function GamesManagement() {
 
   const handleDelete = async (gameId: number) => {
     try {
-      setIsLoading(true)
+      setLoading(true)
       const { error } = await deleteGame(gameId)
       if (error) throw error
       
@@ -52,7 +51,7 @@ export function GamesManagement() {
       console.error('Error deleting game:', error)
       toast("Failed to delete game")
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 

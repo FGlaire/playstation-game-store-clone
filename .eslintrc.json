@@ -1,7 +1,10 @@
 {
   "extends": "next/core-web-vitals",
   "rules": {
-    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-unused-vars": ["error", {
+      "varsIgnorePattern": "^selectedGame$",
+      "argsIgnorePattern": "^(index|columnIndex)$"
+    }],
     "react/no-unescaped-entities": "off",
     "@next/next/no-img-element": "warn",
     "react-hooks/exhaustive-deps": "warn"
