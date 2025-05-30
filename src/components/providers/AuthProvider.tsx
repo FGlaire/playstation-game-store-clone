@@ -26,13 +26,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const { clearCart } = useCart()
   const mountedRef = useRef(true)
+  const adminCheckTimeoutRef = useRef<NodeJS.Timeout>()
 
   async function checkAdminRole(userId: string) {
     try {
       console.log('=== Starting admin role check ===')
       console.log('Checking admin role for user:', userId)
       
-      setIsLoading(true)
       // Get the user's role
       const role = await getUserRole(userId)
       console.log('Retrieved role from database:', role)
@@ -45,10 +45,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('=== Completed admin role check ===')
     } catch (err) {
       console.error('Error in checkAdminRole:', err)
-      setIsAdmin(false)
-    } finally {
       if (mountedRef.current) {
-        setIsLoading(false)
+        setIsAdmin(false)
       }
     }
   }
@@ -71,10 +69,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (mountedRef.current) {
           setUser(session?.user ?? null)
           if (session?.user) {
-            await checkAdminRole(session.user.id)
-          } else {
-            setIsLoading(false)
+            // Clear any existing timeout
+            if (adminCheckTimeoutRef.current) {
+              clearTimeout(adminCheckTimeoutRef.current)
+            }
+            // Debounce admin role check
+            adminCheckTimeoutRef.current = setTimeout(() => {
+              checkAdminRole(session.user.id)
+            }, 100)
           }
+          setIsLoading(false)
         }
 
         // Listen for auth changes
@@ -89,14 +93,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           
           if (!mountedRef.current) return
 
-          setIsLoading(true)
-          setUser(session?.user ?? null)
           if (session?.user) {
-            await checkAdminRole(session.user.id)
+            setUser(session.user)
+            // Clear any existing timeout
+            if (adminCheckTimeoutRef.current) {
+              clearTimeout(adminCheckTimeoutRef.current)
+            }
+            // Debounce admin role check
+            adminCheckTimeoutRef.current = setTimeout(() => {
+              checkAdminRole(session.user.id)
+            }, 100)
           } else {
+            setUser(null)
             setIsAdmin(false)
-            setIsLoading(false)
           }
+          setIsLoading(false)
         })
 
         return () => {
@@ -114,10 +125,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       mountedRef.current = false
+      if (adminCheckTimeoutRef.current) {
+        clearTimeout(adminCheckTimeoutRef.current)
+      }
     }
   }, [])
 
   async function signOut() {
+    if (adminCheckTimeoutRef.current) {
+      clearTimeout(adminCheckTimeoutRef.current)
+    }
     await supabase.auth.signOut()
     clearCart()
     setUser(null)
