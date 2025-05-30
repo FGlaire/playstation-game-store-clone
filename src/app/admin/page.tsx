@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/components/providers/AuthProvider'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -12,7 +12,6 @@ import { Toaster } from 'sonner'
 export default function AdminDashboard() {
   const { user, isAdmin, isLoading } = useAuth()
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState('analytics')
 
   useEffect(() => {
     console.log('=== Admin Dashboard State ===')
@@ -20,28 +19,35 @@ export default function AdminDashboard() {
     console.log('Is Admin:', isAdmin)
     console.log('Is Loading:', isLoading)
 
+    // Only redirect if we're not loading and either there's no user or the user is not an admin
     if (!isLoading && (!user || !isAdmin)) {
       console.log('Redirecting to home - Not authorized')
-      router.push('/')
+      router.replace('/')
+      return
+    }
+
+    if (user && isAdmin) {
+      console.log('Admin Dashboard: Rendering dashboard')
     }
   }, [user, isAdmin, isLoading, router])
 
+  // Show nothing while loading
   if (isLoading) {
     console.log('Admin Dashboard: Loading...')
     return null
   }
 
+  // Show nothing if not authorized (redirect will happen via useEffect)
   if (!user || !isAdmin) {
     console.log('Admin Dashboard: No access - User:', !!user, 'Admin:', isAdmin)
     return null
   }
 
-  console.log('Admin Dashboard: Rendering dashboard')
   return (
     <div className="container mx-auto px-4 pt-20 sm:pt-24 pb-10">
       <Toaster />
       <h1 className="mb-6 sm:mb-8 text-2xl sm:text-3xl font-bold">Admin Dashboard</h1>
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs defaultValue="analytics" className="w-full">
         <TabsList className="w-full sm:w-auto grid grid-cols-3 sm:flex gap-1">
           <TabsTrigger value="analytics" className="text-sm sm:text-base">Analytics</TabsTrigger>
           <TabsTrigger value="games" className="text-sm sm:text-base">Games</TabsTrigger>
@@ -54,7 +60,7 @@ export default function AdminDashboard() {
           <GamesManagement />
         </TabsContent>
         <TabsContent value="add-game" className="mt-4 sm:mt-6">
-          <AddGameForm onSuccess={() => setActiveTab('games')} />
+          <AddGameForm onSuccess={() => {}} />
         </TabsContent>
       </Tabs>
     </div>

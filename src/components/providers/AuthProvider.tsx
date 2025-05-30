@@ -27,6 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { clearCart } = useCart()
   const mountedRef = useRef(true)
   const adminCheckTimeoutRef = useRef<NodeJS.Timeout>()
+  const initializationRef = useRef(false)
 
   async function checkAdminRole(userId: string) {
     try {
@@ -53,8 +54,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     mountedRef.current = true
+    let authSubscription: { unsubscribe: () => void } | null = null;
 
     async function initializeAuth() {
+      if (initializationRef.current) return;
+      initializationRef.current = true;
+
       try {
         console.log('=== Starting auth initialization ===')
         setIsLoading(true)
@@ -69,14 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (mountedRef.current) {
           setUser(session?.user ?? null)
           if (session?.user) {
-            // Clear any existing timeout
-            if (adminCheckTimeoutRef.current) {
-              clearTimeout(adminCheckTimeoutRef.current)
-            }
-            // Debounce admin role check
-            adminCheckTimeoutRef.current = setTimeout(() => {
-              checkAdminRole(session.user.id)
-            }, 100)
+            await checkAdminRole(session.user.id)
           }
           setIsLoading(false)
         }
@@ -95,14 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           if (session?.user) {
             setUser(session.user)
-            // Clear any existing timeout
-            if (adminCheckTimeoutRef.current) {
-              clearTimeout(adminCheckTimeoutRef.current)
-            }
-            // Debounce admin role check
-            adminCheckTimeoutRef.current = setTimeout(() => {
-              checkAdminRole(session.user.id)
-            }, 100)
+            await checkAdminRole(session.user.id)
           } else {
             setUser(null)
             setIsAdmin(false)
@@ -110,9 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setIsLoading(false)
         })
 
-        return () => {
-          subscription.unsubscribe()
-        }
+        authSubscription = subscription;
       } catch (err) {
         console.error('Error initializing auth:', err)
         if (mountedRef.current) {
@@ -125,8 +114,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       mountedRef.current = false
+      initializationRef.current = false
       if (adminCheckTimeoutRef.current) {
         clearTimeout(adminCheckTimeoutRef.current)
+      }
+      if (authSubscription) {
+        authSubscription.unsubscribe()
       }
     }
   }, [])
