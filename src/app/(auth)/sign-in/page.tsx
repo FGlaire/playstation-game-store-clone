@@ -37,7 +37,7 @@ export default function SignInPage() {
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(_values: z.infer<typeof formSchema>) {
     toast.success("Signed in successfully!")
     router.push("/")
   }

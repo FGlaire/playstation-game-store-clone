@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 
 export function HomeLoadingScreen() {
   const pathname = usePathname()
@@ -38,11 +39,32 @@ export function HomeLoadingScreen() {
               ease: [0.22, 1, 0.36, 1]
             }}
           >
-            <img
-              src="/playstation-logo.svg"
-              alt="PlayStation Logo"
-              className="w-24 h-24"
-            />
+            <motion.div
+              className="w-12 h-12 relative"
+              animate={{ 
+                rotate: 360,
+                scale: [0.8, 1, 0.8]
+              }}
+              transition={{
+                rotate: {
+                  duration: 2,
+                  ease: "linear",
+                  repeat: Infinity
+                },
+                scale: {
+                  duration: 1,
+                  ease: "easeInOut",
+                  repeat: Infinity
+                }
+              }}
+            >
+              <Image
+                src="/playstation-logo.svg"
+                alt="Loading..."
+                fill
+                className="opacity-80"
+              />
+            </motion.div>
           </motion.div>
         </motion.div>
       )}

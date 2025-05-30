@@ -54,7 +54,7 @@ export default function SignIn() {
 
       if (data.user) {
         // First check if user exists and get their current role
-        const { data: userData, error: fetchError } = await supabase
+        const { error: fetchError } = await supabase
           .from('users')
           .select('role')
           .eq('id', data.user.id)

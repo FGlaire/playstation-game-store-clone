@@ -37,7 +37,7 @@ export function LoadingScreen() {
         clearTimeout(fallbackTimer)
       }
     }
-  }, [isInitialLoad])
+  }, [isInitialLoad, isTransitioning])
 
   // Store the last pathname to detect navigation
   const [lastPathname, setLastPathname] = useState(pathname)

@@ -42,9 +42,9 @@ export default function SignUpPage() {
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(_values: z.infer<typeof formSchema>) {
     toast.success("Account created successfully!")
-    router.push("/sign-in")
+    router.push("/")
   }
 
   return (

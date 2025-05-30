@@ -65,7 +65,7 @@ const marqueeStyles = `
 export default function Home() {
   const [games, setGames] = useState<Game[]>([])
   const [loading, setLoading] = useState(true)
-  const { ref: heroRef, inView: heroInView } = useInView({ triggerOnce: true })
+  const { ref: heroRef } = useInView({ triggerOnce: true })
   const { ref: gamesRef, inView: gamesInView } = useInView({ triggerOnce: true })
 
   useEffect(() => {
