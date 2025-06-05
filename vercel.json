@@ -1,7 +1,4 @@
 {
-  "ssl": {
-    "rewrite": true
-  },
   "headers": [
     {
       "source": "/(.*)",
@@ -27,6 +24,20 @@
           "value": "strict-origin-when-cross-origin"
         }
       ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-forwarded-proto",
+          "value": "http"
+        }
+      ],
+      "permanent": true,
+      "destination": "https://:path*"
     }
   ]
 } 
